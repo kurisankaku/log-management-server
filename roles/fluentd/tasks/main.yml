@@ -1,0 +1,61 @@
+---
+- name: check td-agent exists.
+  shell: /bin/bash -lc "td-agent --version"
+  register: is_td
+  ignore_errors: true
+
+- name: Increase Max of File Descriptions
+  become: yes
+  lineinfile:
+    dest: /etc/security/limits.conf
+    state: present
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - regexp: "^root soft nofile 65536"
+      line: "root soft nofile 65536"
+    - regexp: "^root hard nofile 65536"
+      line: "root hard nofile 65536"
+  when: is_td|failed
+
+- name: Set {{ item.param }}
+  become: yes
+  sysctl:
+    name: "{{ item.param }}"
+    value: "{{ item.value }}"
+    state: present
+  with_items:
+    - param: "net.ipv4.tcp_tw_recycle"
+      value: "1"
+    - param: "net.ipv4.tcp_tw_reuse"
+      value: "1"
+    - param: "net.ipv4.ip_local_port_range"
+      value: "10240 65535"
+  when: is_td|failed
+
+- name: restart machine
+  shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+  async: 1
+  become: yes
+  ignore_errors: true
+  when: is_td|failed
+
+- name: waiting for server to come back
+  local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=300
+  when: is_td|failed
+
+- name: add gpg key for fluentd
+  become: yes
+  rpm_key: state=present key=https://packages.treasuredata.com/GPG-KEY-td-agent
+
+- name: copy rpm repo for fluentd
+  become: yes
+  copy: src=fluentd_repo dest=/etc/yum.repos.d/td.repo
+
+- name: install fluentd
+  become: yes
+  yum: name=td-agent state=present
+
+- name: Ensure fluentd is running and enabled on boot
+  become: yes
+  service: name=td-agent state=started enabled=yes

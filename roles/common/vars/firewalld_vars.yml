@@ -1,0 +1,6 @@
+firewall_allow_services: []
+firewall_allow_ports:
+  - port: "5601/tcp" # Kibana
+  - port: "9200/tcp" # Elasticsearch
+firewall_allow_rich_rule: []
+  # - { rich_rule: 'rule family="ipv4" source address="192.168.1.1" port protocol="tcp" port="22" accept' }

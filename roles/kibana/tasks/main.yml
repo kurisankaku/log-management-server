@@ -1,0 +1,12 @@
+---
+- name: copy rpm repo for kibana
+  become: yes
+  copy: src=kibana_repo dest=/etc/yum.repos.d/kibana.repo
+
+- name: install kibana
+  become: yes
+  yum: name=kibana state=present
+
+- name: Ensure kibana is running and enabled on boot
+  become: yes
+  service: name=kibana state=started enabled=yes

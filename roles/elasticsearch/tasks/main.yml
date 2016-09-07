@@ -1,0 +1,20 @@
+---
+- name: install jdk.
+  become: yes
+  yum: name=java-1.8.0-openjdk-headless state=present
+
+- name: add gpg key for elasticsearch
+  become: yes
+  rpm_key: state=present key=https://packages.elastic.co/GPG-KEY-elasticsearch
+
+- name: copy rpm repo for elasticsearch
+  become: yes
+  copy: src=elasticsearch_repo dest=/etc/yum.repos.d/elasticsearch.repo
+
+- name: install elasticsearch
+  become: yes
+  yum: name=elasticsearch state=present
+
+- name: Ensure elasticsearch is running and enabled on boot
+  become: yes
+  service: name=elasticsearch state=started enabled=yes
