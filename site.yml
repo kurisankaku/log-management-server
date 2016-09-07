@@ -2,6 +2,6 @@
 - hosts: servers
   roles:
     - common
-    - fluentd
-    - elasticsearch
-    - kibana
+    # - fluentd
+    # - elasticsearch
+    # - kibana
