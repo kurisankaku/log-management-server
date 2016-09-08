@@ -1,0 +1,4 @@
+---
+- name: reload td-agent
+  become: yes
+  service: name=td-agent state=reloaded
