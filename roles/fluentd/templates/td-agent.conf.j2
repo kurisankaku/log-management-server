@@ -1,0 +1,16 @@
+<source>
+  @type forward
+</source>
+
+<match nginx.access>
+  @type elasticsearch
+  logstash_format true
+  hosts localhost
+  port 9200
+  type_name nginx-access-log
+  buffer_type memory
+  retry_limit 17
+  retry_wait 1.0
+  num_threads 1
+  flush_interval 60
+</match>

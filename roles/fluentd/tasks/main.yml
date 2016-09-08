@@ -56,6 +56,21 @@
   become: yes
   yum: name=td-agent state=present
 
+- name: install elasticsearch plugin
+  become: yes
+  shell: /usr/sbin/td-agent-gem install fluent-plugin-elasticsearch
+
+- name: td-agent configuration in place.
+  become: yes
+  template:
+    src: td-agent.conf.j2
+    dest: /etc/td-agent/td-agent.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - reload td-agent
+
 - name: Ensure fluentd is running and enabled on boot
   become: yes
   service: name=td-agent state=started enabled=yes
